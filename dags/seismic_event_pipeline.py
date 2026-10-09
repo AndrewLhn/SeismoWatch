@@ -48,14 +48,14 @@ def read_watermark() -> datetime | None:
 
 def snapshot_from_usgs(ds: str, **_: object) -> dict[str, str]:
     watermark = read_watermark()
-    params = {
-        "format": "geojson",
-        "starttime": ds,
-        "endtime": (datetime.strptime(ds, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d"),
-        "orderby": "time-asc",
-    }
+    params = {"format": "geojson", "orderby": "time-asc"}
     if watermark:
+        # A source revision can relate to an event that occurred before today's logical date.
+        # Do not constrain this poll by event time when advancing a source-update watermark.
         params["updatedafter"] = watermark.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    else:
+        params["starttime"] = ds
+        params["endtime"] = (datetime.strptime(ds, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
 
     response = requests.get(USGS_BASE_URL, params=params, timeout=45)
     response.raise_for_status()
