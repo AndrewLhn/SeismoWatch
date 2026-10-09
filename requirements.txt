@@ -1,3 +1,7 @@
 apache-airflow==2.10.5
-duckdb==1.2.2
-psycopg2-binary
+boto3==1.35.99
+dbt-core==1.8.9
+dbt-postgres==1.8.2
+h3==4.1.2
+psycopg2-binary==2.9.10
+requests==2.32.3
