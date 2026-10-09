@@ -22,7 +22,9 @@ and append-only observation versions, then exposes both historical and current-s
 
 ## Run locally
 
-Requirements: Docker, Docker Compose, and Python 3 for generating a local Fernet key.\n\nThe bundled Compose stack is for local development only. Do not reuse its example values in a shared or deployed environment.
+Requirements: Docker, Docker Compose, and Python 3 for generating a local Fernet key.
+
+The bundled Compose stack is for local development only. Do not reuse its example values in a shared or deployed environment.
 
 ~~~bash
 cp .env.example .env
