@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_seismic_event_observations
+    columns:
+      - name: event_id
+        tests: [not_null]
+      - name: source_updated_at
+        tests: [not_null]
+  - name: fct_seismic_event_versions
+    columns:
+      - name: event_id
+        tests: [not_null]
+      - name: h3_cell
+        tests: [not_null]
+  - name: dim_seismic_event_current
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: event_geometry
+        tests: [not_null]
+  - name: mart_daily_seismic_activity
+    columns:
+      - name: event_date
+        tests: [not_null, unique]
