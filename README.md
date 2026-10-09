@@ -22,11 +22,12 @@ and append-only observation versions, then exposes both historical and current-s
 
 ## Run locally
 
-Requirements: Docker and Docker Compose.
+Requirements: Docker, Docker Compose, and Python 3 for generating a local Fernet key.\n\nThe bundled Compose stack is for local development only. Do not reuse its example values in a shared or deployed environment.
 
 ~~~bash
 cp .env.example .env
-# Replace placeholder passwords.
+# Generate a Fernet key, add it to AIRFLOW_FERNET_KEY, and replace every change-me value.
+python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 docker compose up -d --build
 ~~~
 
