@@ -5,7 +5,7 @@ x-airflow-common: &airflow-common
   environment:
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
-    AIRFLOW__CORE__FERNET_KEY: FB1o_o2Ut439g66v9bA6S2EXidwCHGvYfXve9H6U_Y4=
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:?Set AIRFLOW_FERNET_KEY in .env}
     AIRFLOW__CORE__LOAD_EXAMPLES: "False"
     POSTGRES_HOST: postgres
     POSTGRES_USER: ${POSTGRES_USER}
@@ -77,7 +77,7 @@ services:
     command: >
       bash -c "
       airflow db migrate &&
-      (airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true)
+      (airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password ${AIRFLOW_ADMIN_PASSWORD:?Set AIRFLOW_ADMIN_PASSWORD in .env} || true)
       "
     restart: "no"
 
