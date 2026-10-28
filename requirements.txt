@@ -1,7 +1,7 @@
-apache-airflow==2.10.5
-boto3==1.35.99
-dbt-core==1.8.9
-dbt-postgres==1.8.2
-h3==4.1.2
-psycopg2-binary==2.9.10
-requests==2.32.3
+# Task-runtime dependencies for the Airflow image. Airflow itself comes from
+# the base image tag in the Dockerfile; dbt lives in an isolated venv built
+# from dbt/requirements.txt so its pins cannot break the scheduler.
+boto3==1.43.121
+h3==4.5.0
+psycopg2-binary==2.9.13
+requests==2.34.2
