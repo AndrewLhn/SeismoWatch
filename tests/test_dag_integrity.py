@@ -44,10 +44,13 @@ class DagIntegrityTests(unittest.TestCase):
         self.assertEqual(self.dag.default_args["retries"], 3)
         self.assertIn("execution_timeout", self.dag.default_args)
 
-    def test_ingest_task_runs_the_airflow_free_module(self):
+    def test_ingest_task_runs_the_airflow_free_module_in_its_venv(self):
         command = self.dag.get_task("ingest_usgs_observations").bash_command
         self.assertIn("seismic_pipeline_run.py", command)
         self.assertIn("--ds", command)
+        self.assertIn("/home/airflow/pipeline_env/bin/python", command)
+        # Airflow's own PYTHONPATH must not leak into the isolated venv.
+        self.assertIn("-u PYTHONPATH", command)
 
     def test_dbt_tasks_use_the_isolated_venv(self):
         for task_id in ("build_analytics_models", "check_source_freshness"):

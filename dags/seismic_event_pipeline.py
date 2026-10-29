@@ -9,7 +9,11 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
 
-RUN_INGESTION = 'python /opt/airflow/dags/seismic_pipeline_run.py --ds "{{ ds }}"'
+RUN_INGESTION = (
+    'env -u PYTHONPATH -u LD_PRELOAD PYTHONNOUSERSITE=1 '
+    '/home/airflow/pipeline_env/bin/python '
+    '/opt/airflow/dags/seismic_pipeline_run.py --ds "{{ ds }}"'
+)
 # dbt artifacts go to /tmp: the project directory is a bind mount owned by the
 # host user, and the container's airflow user must not depend on its write bits.
 DBT = (
