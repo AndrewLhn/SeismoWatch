@@ -10,6 +10,9 @@ __pycache__/
 venv/
 .pytest_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 # Airflow
 airflow/logs/
@@ -21,6 +24,8 @@ webserver_config.py
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
+# dbt's anonymous usage id is machine-local and must never be committed
+.user.yml
 
 # Runtime data
 data/
