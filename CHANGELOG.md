@@ -4,7 +4,29 @@ Notable changes to this project. Format loosely follows Keep a Changelog.
 
 ## Unreleased
 
+### Fixed
+
+- The Airflow image no longer installs anything as root. The base image runs as
+  uid 50000 and treats `/home/airflow/.local` as its `VIRTUAL_ENV`; the previous
+  root-level `pip install` wrote root-owned packages into the airflow user's
+  environment and could fail dependency resolution against Airflow's own pins.
+  Task dependencies now install into an isolated `pipeline_env` venv (dbt keeps
+  `dbt_env`), and the ingestion task runs through that venv's python with
+  `PYTHONPATH` cleared - the isolation Ledgerline uses.
+- E2E: `--wait-timeout` was tighter than Airflow standalone's own 120s
+  start_period plus cold image pulls (now 900s), the image build is a separate
+  logged step, and any unexpected failure dumps the offending line, container
+  states, and log tails instead of exiting silently under `set -e`.
+
 ### Changed
+
+- Metabase moved behind the `viz` compose profile (`docker compose --profile viz
+  up -d`, `make viz-up`): the pipeline and CI no longer pull a BI image they do
+  not exercise.
+- Added `.dockerignore` so the build context excludes git, docs, tests, and
+  local dbt/coverage artifacts.
+
+### Changed (earlier in this release)
 
 - Airflow 2.10.5 -> 3.3.2: the 2.x line is EOL. The stack now runs a single
   `airflow-standalone` service (init/webserver/scheduler collapsed, the shape
