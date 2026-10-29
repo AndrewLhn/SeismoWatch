@@ -16,10 +16,10 @@ RUN_INGESTION = (
 )
 # dbt artifacts go to /tmp: the project directory is a bind mount owned by the
 # host user, and the container's airflow user must not depend on its write bits.
-DBT = (
-    "cd /opt/airflow/dbt && /home/airflow/dbt_env/bin/dbt"
-    " --target-path /tmp/dbt/target --log-path /tmp/dbt/logs"
-)
+# In dbt-core 1.11 the path flags are subcommand-level only (the global
+# --target-path was removed), so they must follow `build` / `source freshness`.
+DBT = "cd /opt/airflow/dbt && /home/airflow/dbt_env/bin/dbt"
+DBT_PATHS = "--target-path /tmp/dbt/target --log-path /tmp/dbt/logs"
 
 with DAG(
     dag_id="seismic_event_pipeline",
@@ -39,13 +39,13 @@ with DAG(
     ingest = BashOperator(task_id="ingest_usgs_observations", bash_command=RUN_INGESTION)
     transform = BashOperator(
         task_id="build_analytics_models",
-        bash_command=f"{DBT} build --profiles-dir .",
+        bash_command=f"{DBT} build --profiles-dir . {DBT_PATHS}",
     )
     # Freshness is a gate, not a report: if the landing zone stops receiving
     # versions, the run fails and the runbook applies (docs/runbooks/).
     freshness = BashOperator(
         task_id="check_source_freshness",
-        bash_command=f"{DBT} source freshness --profiles-dir .",
+        bash_command=f"{DBT} source freshness --profiles-dir . {DBT_PATHS}",
     )
 
     ingest >> transform >> freshness
