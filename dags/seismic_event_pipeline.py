@@ -29,7 +29,10 @@ with DAG(
     default_args={
         "owner": "data-engineering",
         "retries": 3,
-        "retry_delay": timedelta(minutes=10),
+        # Short delay keeps `airflow dags test` inside the e2e CI budget even
+        # when a task fails deterministically; production retries are cheap
+        # because every step is idempotent.
+        "retry_delay": timedelta(minutes=2),
         "execution_timeout": timedelta(minutes=20),
     },
     max_active_runs=1,

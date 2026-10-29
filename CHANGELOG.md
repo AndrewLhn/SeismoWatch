@@ -21,6 +21,10 @@ Notable changes to this project. Format loosely follows Keep a Changelog.
   dbt-core 1.11 removed the global `--target-path`, so the previous
   flags-before-`build` form made both dbt tasks die instantly at CLI parsing
   ("No such option"). A DAG test now pins the flag position.
+- Task retry delay dropped from 10 minutes to 2. `airflow dags test` honors
+  retries, so a deterministic failure parked in `up_for_retry` until the e2e
+  workflow timeout canceled the run and hid downstream diagnostics. Every step
+  is idempotent, so the short delay is also the right production behavior.
 
 ### Changed
 
