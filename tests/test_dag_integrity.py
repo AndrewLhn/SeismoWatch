@@ -3,6 +3,7 @@ in CI and on hosts using requirements-dev.txt)."""
 
 import sys
 import unittest
+from datetime import timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dags"))
@@ -70,6 +71,12 @@ class DagIntegrityTests(unittest.TestCase):
         ):
             command = self.dag.get_task(task_id).bash_command
             self.assertLess(command.index(f"dbt {subcommand}"), command.index("--target-path"))
+
+    def test_retry_delay_keeps_e2e_inside_the_ci_budget(self):
+        # `airflow dags test` honors retries, so a deterministic failure must
+        # exhaust them well inside the workflow timeout instead of parking in
+        # up_for_retry until CI cancels the run.
+        self.assertLessEqual(self.dag.default_args["retry_delay"], timedelta(minutes=2))
 
 
 if __name__ == "__main__":
