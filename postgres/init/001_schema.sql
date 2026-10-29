@@ -17,10 +17,15 @@ CREATE TABLE IF NOT EXISTS ops.ingestion_runs (
   raw_object_uri text NOT NULL,
   received_count integer NOT NULL,
   rejected_count integer NOT NULL,
-  status text NOT NULL,
+  -- 'running' rows whose transaction died are themselves evidence: the audit
+  -- row is committed before the load transaction (see seismic_pipeline_run.py).
+  status text NOT NULL CHECK (status IN ('running', 'succeeded', 'failed')),
   started_at timestamptz NOT NULL DEFAULT now(),
   completed_at timestamptz
 );
+
+CREATE INDEX IF NOT EXISTS ingestion_runs_pipeline_date_idx
+  ON ops.ingestion_runs (pipeline_name, logical_date);
 
 CREATE TABLE IF NOT EXISTS ops.rejected_events (
   rejected_event_id bigserial PRIMARY KEY,
@@ -29,6 +34,9 @@ CREATE TABLE IF NOT EXISTS ops.rejected_events (
   rejection_reason text NOT NULL,
   rejected_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE INDEX IF NOT EXISTS rejected_events_run_idx
+  ON ops.rejected_events (ingestion_run_id);
 
 CREATE TABLE IF NOT EXISTS raw.seismic_event_observations (
   event_id text NOT NULL,

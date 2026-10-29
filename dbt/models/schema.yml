@@ -2,24 +2,78 @@ version: 2
 
 models:
   - name: stg_seismic_event_observations
+    description: Typed source observation versions, one row per (event_id, source_updated_at).
     columns:
       - name: event_id
+        description: USGS event identifier, stable across revisions.
         tests: [not_null]
       - name: source_updated_at
+        description: Source publication time of this version; part of the version key.
         tests: [not_null]
+      - name: payload_hash
+        description: SHA-256 of the canonical raw feature JSON.
+        tests: [not_null]
+
+  - name: stg_ingestion_runs
+    description: Per-attempt ingestion audit trail, including failed runs.
+    columns:
+      - name: ingestion_run_id
+        tests: [not_null, unique]
+      - name: status
+        description: Lifecycle of the attempt; a stuck 'running' row means a crashed load.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['running', 'succeeded', 'failed']
+
+  - name: stg_ingestion_watermarks
+    description: Source-update high-water mark per pipeline.
+    columns:
+      - name: pipeline_name
+        tests: [not_null, unique]
+      - name: last_source_updated_at
+        tests: [not_null]
+
   - name: fct_seismic_event_versions
+    description: Full revision history with PostGIS geometry and a current-version flag.
     columns:
       - name: event_id
         tests: [not_null]
       - name: h3_cell
+        description: H3 cell at the configured resolution, computed at ingestion.
         tests: [not_null]
+      - name: is_current_version
+        description: True for the latest known version of each event.
+
   - name: dim_seismic_event_current
+    description: Latest known state per event; the model consumers should default to.
     columns:
       - name: event_id
         tests: [not_null, unique]
       - name: event_geometry
         tests: [not_null]
+
   - name: mart_daily_seismic_activity
+    description: Daily counts and magnitude statistics over current event versions.
     columns:
       - name: event_date
         tests: [not_null, unique]
+
+  - name: mart_h3_regional_risk
+    description: H3-cell daily activity and material-event (M >= 4.5) metrics.
+    columns:
+      - name: h3_cell
+        tests: [not_null]
+      - name: event_date
+        tests: [not_null]
+
+  - name: mart_ingestion_reliability
+    description: Daily ingestion reliability - run outcomes, rejection rate, watermark age.
+    columns:
+      - name: run_date
+        tests: [not_null, unique]
+      - name: failed_runs
+        description: Non-zero here is an incident input (see the freshness runbook).
+      - name: watermark_age_hours
+        description: Hours since the newest loaded source revision; the freshness SLO input.

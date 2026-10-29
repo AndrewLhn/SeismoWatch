@@ -1,3 +1,12 @@
+-- Typed passthrough of the append-only landing zone.
+-- The event_time guard drops clock-skewed sources claiming the future;
+-- contract validation at ingestion already quarantines structurally bad rows.
+with source as (
+
+    select * from {{ source('seismic_raw', 'seismic_event_observations') }}
+
+)
+
 select
   event_id,
   source_updated_at,
@@ -14,5 +23,5 @@ select
   payload_hash,
   raw_object_uri,
   ingested_at
-from raw.seismic_event_observations
+from source
 where event_time <= now() + interval '5 minutes'

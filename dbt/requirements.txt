@@ -1,0 +1,4 @@
+# dbt runs in its own venv inside the Airflow image (/home/airflow/dbt_env).
+# Keep these pins independent of Airflow's runtime dependencies.
+dbt-core==1.11.16
+dbt-postgres==1.11.0

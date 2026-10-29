@@ -1,7 +1,9 @@
-apache-airflow==2.10.5
-boto3==1.35.99
-dbt-core==1.8.9
-dbt-postgres==1.8.2
-h3==4.1.2
-psycopg2-binary==2.9.10
-requests==2.32.3
+# Pipeline-runtime dependencies, installed into /home/airflow/pipeline_env in
+# the Dockerfile. Airflow itself comes from the base image and is deliberately
+# not a dependency here: the ingestion module imports no Airflow, so it runs in
+# this venv while the scheduler keeps its own environment.
+# dbt lives in a second venv - see dbt/requirements.txt.
+boto3==1.43.121
+h3==4.5.0
+psycopg2-binary==2.9.13
+requests==2.34.2

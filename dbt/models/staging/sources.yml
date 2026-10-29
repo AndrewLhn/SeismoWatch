@@ -1,0 +1,49 @@
+version: 2
+
+sources:
+  - name: seismic_raw
+    description: >
+      Append-only landing zone. Every row is one source observation version;
+      nothing is updated in place, so loaded_at only ever moves forward.
+    schema: raw
+    loaded_at_field: ingested_at
+    freshness:
+      warn_after: {count: 36, period: hour}
+      error_after: {count: 72, period: hour}
+    tables:
+      - name: seismic_event_observations
+        description: >
+          One row per (event_id, source_updated_at) version published by USGS,
+          validated against the contract and H3-indexed at ingestion.
+        columns:
+          - name: event_id
+            description: USGS event identifier, stable across revisions.
+          - name: source_updated_at
+            description: Source publication time of this version; part of the version key.
+          - name: payload_hash
+            description: SHA-256 of the canonical raw feature JSON.
+          - name: raw_object_uri
+            description: S3 URI of the immutable snapshot this version arrived in.
+
+  - name: seismic_ops
+    description: >
+      Pipeline operational metadata: run audit, quarantine, and the
+      source-update watermark.
+    schema: ops
+    tables:
+      - name: ingestion_runs
+        description: One row per ingestion attempt, including failed ones.
+        loaded_at_field: started_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+      - name: ingestion_watermarks
+        description: High-water mark of source publication time per pipeline.
+        loaded_at_field: updated_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+      - name: rejected_events
+        description: >
+          Quarantined features with rejection reasons. Deliberately has no
+          freshness check: an empty quarantine is the healthy state.
