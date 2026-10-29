@@ -11,12 +11,26 @@ compose=(docker compose)
 
 log() { printf '\n=== %s ===\n' "$1"; }
 
+dump_state() {
+  "${compose[@]}" ps -a >&2 2>/dev/null || true
+  "${compose[@]}" logs --tail=200 >&2 2>/dev/null || true
+}
+
 fail() {
   echo "E2E FAILED: $1" >&2
-  "${compose[@]}" ps >&2 || true
-  "${compose[@]}" logs --tail=100 >&2 || true
+  dump_state
   exit 1
 }
+
+# Any unexpected failure (build, pull, compose, psql) reports the line it died
+# on and dumps container state, instead of exiting silently under `set -e`.
+on_err() {
+  local code=$? line=$1
+  echo "E2E FAILED: line ${line} exited ${code}" >&2
+  dump_state
+  exit "$code"
+}
+trap 'on_err $LINENO' ERR
 
 check_eq() {
   local label="$1" actual="$2" expected="$3"
@@ -51,10 +65,16 @@ set -a; source .env; set +a
 log "Resetting previous stack state (volumes included)"
 "${compose[@]}" down -v --remove-orphans
 
+log "Building the Airflow image"
+# Separate step so a build failure is attributable in the log, not mixed into
+# container startup.
+"${compose[@]}" build
+
 log "Starting the stack"
-# --wait blocks until every healthchecked service (including airflow-standalone)
-# is ready; --wait-timeout fails fast with the stuck service named in the error.
-"${compose[@]}" up -d --build --wait --wait-timeout 420
+# --wait blocks until every healthchecked service is ready. Airflow standalone
+# has a 120s start_period of its own, on top of image pulls and first-boot DB
+# migration, so the budget is deliberately generous.
+"${compose[@]}" up -d --wait --wait-timeout 900
 
 log "Waiting for Airflow to parse the DAG"
 dag_ready=""
