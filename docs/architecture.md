@@ -14,10 +14,15 @@ A single-host Docker Compose stack for local development:
 - **Airflow 3 standalone** runs the scheduler, API server, and DAG processor in one container.
   Ingestion logic lives in an Airflow-free module (`dags/seismic_pipeline_run.py`), invoked
   through a BashOperator, so the whole pipeline is unit-testable without an orchestrator.
-- **dbt runs in an isolated venv** inside the Airflow image (`dbt_env`); its pins cannot
-  break the scheduler's Python environment.
+- **Nothing is installed into Airflow's own environment.** The base image runs as uid 50000
+  and treats `/home/airflow/.local` as its `VIRTUAL_ENV`, so the image builds two isolated
+  venvs as the `airflow` user — `pipeline_env` (boto3/h3/psycopg2/requests) and `dbt_env`
+  (dbt-core/dbt-postgres). A pin bump on either side cannot break the scheduler, and no
+  root-owned files land in the airflow home.
 - **Silo** (a pinned MinIO-compatible fork) provides the S3 API for raw snapshots; upstream
   MinIO images were removed from registries in 2026.
+- **Metabase is behind the `viz` compose profile**: the pipeline and CI never pull the BI
+  layer they do not need.
 - Published ports bind to loopback only; secrets come from a required, git-ignored `.env`.
 
 ## Event lifecycle

@@ -49,10 +49,12 @@ Requirements: Docker and Docker Compose.
 
 ~~~bash
 cp .env.example .env   # replace the change-me values before sharing the stack
-docker compose up -d --build
+docker compose up -d --build        # pipeline stack
+docker compose --profile viz up -d  # add Metabase (optional BI layer)
 ~~~
 
-Airflow standalone creates an `admin` user on first start. Print the generated password with:
+Airflow standalone creates an `admin` user on first start. Print the generated
+password with:
 
 ~~~bash
 docker compose exec airflow-standalone cat /opt/airflow/standalone_admin_password.txt
@@ -64,8 +66,8 @@ Services (published on loopback only):
 | --- | --- |
 | Airflow | http://localhost:8080 |
 | Silo (S3) console | http://localhost:9001 |
-| Metabase | http://localhost:3000 |
 | PostgreSQL / PostGIS | localhost:5432 |
+| Metabase (profile `viz`) | http://localhost:3000 |
 
 Trigger `seismic_event_pipeline` in Airflow, or replay a specific logical date:
 
