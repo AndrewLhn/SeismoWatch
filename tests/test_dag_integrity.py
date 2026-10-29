@@ -61,6 +61,16 @@ class DagIntegrityTests(unittest.TestCase):
         command = self.dag.get_task("check_source_freshness").bash_command
         self.assertIn("source freshness", command)
 
+    def test_dbt_path_flags_follow_the_subcommand(self):
+        # dbt-core 1.11 removed the global --target-path flag: path flags must
+        # come after the subcommand, or every dbt task dies at CLI parsing.
+        for task_id, subcommand in (
+            ("build_analytics_models", "build"),
+            ("check_source_freshness", "source freshness"),
+        ):
+            command = self.dag.get_task(task_id).bash_command
+            self.assertLess(command.index(f"dbt {subcommand}"), command.index("--target-path"))
+
 
 if __name__ == "__main__":
     unittest.main()

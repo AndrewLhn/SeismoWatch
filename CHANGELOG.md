@@ -17,6 +17,10 @@ Notable changes to this project. Format loosely follows Keep a Changelog.
   start_period plus cold image pulls (now 900s), the image build is a separate
   logged step, and any unexpected failure dumps the offending line, container
   states, and log tails instead of exiting silently under `set -e`.
+- The dbt tasks pass `--target-path` and `--log-path` after the subcommand:
+  dbt-core 1.11 removed the global `--target-path`, so the previous
+  flags-before-`build` form made both dbt tasks die instantly at CLI parsing
+  ("No such option"). A DAG test now pins the flag position.
 
 ### Changed
 
