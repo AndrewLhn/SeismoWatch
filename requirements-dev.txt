@@ -4,7 +4,7 @@
 apache-airflow==3.3.2
 boto3==1.43.121
 coverage==7.17.0
-dbt-core==1.11.16
+dbt-core==1.12.6
 dbt-postgres==1.11.0
 h3==4.5.0
 psycopg2-binary==2.9.13
