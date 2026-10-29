@@ -1,13 +1,16 @@
 COMPOSE := docker compose
 BACKFILL_DS ?= 2024-01-01
 
-.PHONY: help up down ps logs validate lint test e2e backfill dbt-build dbt-compile
+.PHONY: help up down ps logs validate lint test e2e backfill dbt-build dbt-compile viz-up
 
 help: ## List every target
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "%-14s %s\n", $$1, $$2}'
 
-up: ## Start the full local stack
+up: ## Start the stack (without the optional Metabase profile)
 	$(COMPOSE) up -d --build
+
+viz-up: ## Start the stack including Metabase (profile: viz)
+	$(COMPOSE) --profile viz up -d --build
 
 down: ## Stop the stack (keeps volumes)
 	$(COMPOSE) down

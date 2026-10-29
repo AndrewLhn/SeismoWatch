@@ -105,6 +105,9 @@ services:
         condition: service_healthy
     ports:
       - "127.0.0.1:3000:3000"
+    # Optional BI layer: behind a profile so the pipeline and CI never pull it.
+    # Start with: docker compose --profile viz up -d
+    profiles: [viz]
 
 volumes:
   seismic-postgres:
