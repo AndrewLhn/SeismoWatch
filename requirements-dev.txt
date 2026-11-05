@@ -2,7 +2,7 @@
 # matches the image tag in the Dockerfile so DAG-structure tests exercise the
 # same major version the stack runs.
 apache-airflow==3.3.2
-boto3==1.43.121
+boto3==1.43.123
 coverage==7.17.0
 dbt-core==1.11.16
 dbt-postgres==1.11.0

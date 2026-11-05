@@ -3,7 +3,7 @@
 # not a dependency here: the ingestion module imports no Airflow, so it runs in
 # this venv while the scheduler keeps its own environment.
 # dbt lives in a second venv - see dbt/requirements.txt.
-boto3==1.43.121
+boto3==1.43.123
 h3==4.5.0
 psycopg2-binary==2.9.13
 requests==2.34.2
