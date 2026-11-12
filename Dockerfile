@@ -1,4 +1,4 @@
-FROM apache/airflow:3.3.2-python3.12
+FROM apache/airflow:3.4.0-python3.12
 
 # The base image runs as uid 50000 (airflow) and already treats
 # /home/airflow/.local as its own VIRTUAL_ENV, so nothing here is installed as
