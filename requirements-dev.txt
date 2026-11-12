@@ -1,7 +1,7 @@
 # Host/CI dependencies for tests and static checks. The apache-airflow pin
 # matches the image tag in the Dockerfile so DAG-structure tests exercise the
 # same major version the stack runs.
-apache-airflow==3.3.2
+apache-airflow==3.4.0
 boto3==1.43.121
 coverage==7.17.0
 dbt-core==1.11.16
