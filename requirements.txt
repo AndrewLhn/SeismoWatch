@@ -4,6 +4,6 @@
 # this venv while the scheduler keeps its own environment.
 # dbt lives in a second venv - see dbt/requirements.txt.
 boto3==1.43.121
-h3==4.5.0
+h3==4.5.1
 psycopg2-binary==2.9.13
 requests==2.34.2
